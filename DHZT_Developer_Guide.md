@@ -4,7 +4,7 @@
 
 ### 0.1 版本
 
-- 1.0版本(2019.3.12)：本文档参考了 [ROS 官方风格指南](http://wiki.ros.org/DevelopersGuide)及晓萌团队开发指南，并进行了一定程度的简化，团队成员应该尽量按照 ROS 基本的开发风格以及适用于本项目组的特定规则进行代码开发。如果有细节不统一的地方或者对本文档某处不是很认同，请在组内讨论统一之后，修改本指南。
+- 1.0版本(2019.3.12)：本文档参考了 [ROS 官方风格指南](http://wiki.ros.org/DevelopersGuide)及晓萌团队开发指南，并进行了一定程度的扩充。团队成员应该尽量按照 ROS 基本的开发风格以及适用于本项目组的特定规则进行代码开发。如果有细节不统一的地方或者对本文档某处不是很认同，请在组内讨论统一之后，修改本指南。
 
 ### 0.2 背景
 
@@ -66,7 +66,8 @@
 topic、service 和 action 的名字是节点服务端、客户端之间通信的桥梁。它们存在于一个分层的命名空间中，客户端便可以提供机制在运行时来重映射它们的名字。因此，它们相较于包的命名更加灵活。
 
 - topic、service 和 action 的名字遵循 C++ 变量命名指南：小写、下划线。
-- 命名应该足够的具有描述性。并且最好添加相应的前缀来指明 topic、service、action 的作用范围。比如：假设机械臂关节节点要通过 topic 发布关节状态数据，那命名成 **/joint_states** 要比 **/states** 好。**/dhrobot_arm/joint_states** 又要比 **/joint_states** 好。
+- 命名应该足够的具有描述性。并且最好添加相应的前缀来指明 topic、service、action 的作用范围。比如：假设机械臂关节节点要通过 topic 发布关节状态数据，那命名成 **/joint_states** 要比 **/states** 好。
+- 机器人发布的话题统一加上机器人的前缀**dhrobot/**,例如**/dhrobot_arm/joint_states** 。
 - 如果某些程序发布的 topic、service、action 名字没有使用前缀，请在 launch 文件中使用 `<remap>`来重映射。比如：节点 robot_state_publisher 默认订阅的 topic 是 **/joint_states**，使用重映射可以使其订阅 **/dhrobot_arm/joint_states** 上的数据。
 
 ## 2. ROS 格式指南
@@ -392,7 +393,121 @@ POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************
 """
 ```
+### 2.5 URDF/XACRO
 
+> **Tip**
+> 
+> 使用项目组内特定的风格。
+
+urdf文件是一种统一机器人描述格式，具体详细介绍请看 [URDF](http://wiki.ros.org/urdf/XML)。
+- 为了实现机器人模型的整理，对某些部件进行重复利用，减少代码量，推荐使用xacro格式对机器人描述文件进行二次整理，具体详细介绍请看 [XACRO](http://wiki.ros.org/xacro)。
+- 因为我们通常通过solidworks插件进行urdf模型的转换 [转换插件](http://wiki.ros.org/sw_urdf_exporter)，为了减少工作量，urdf/xacro对模型的描述顺序与转换后保持一致。
+- 两种描述文件都是基于XML格式文件，为了减少工作量，建议采用在线格式化工具对XML进行文本整理 [XML在线格式化工具](http://tool.oschina.net/codeformat/xml/)。
+- 每个joint、link标签段落前后之间要空 1 行。
+- 如果标签一行太长，则请适当的换行。换行之后请与上一行的元素对齐。
+以下是个完整的xacro例子：
+
+``` xml
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="dhrobot_arm">  
+  <xacro:macro name="dhrobot_arm" params="parent *origin"> 
+   
+    <joint name="arm_base_joint" type="fixed"> 
+      <xacro:insert_block name="origin"/>  
+      <parent link="${parent}"/>  
+      <child link="arm_base_link"/> 
+    </joint>  
+   
+    <link name="arm_base_link"> 
+      <inertial> 
+        <origin xyz="-0.0001152 0.0025412 0.070685" rpy="0 0 0"/>  
+        <mass value="0.40818"/>  
+        <inertia ixx="0.00071856" ixy="-1.5281E-06" ixz="-3.2548E-07" iyy="0.00073839" iyz="-2.4896E-06" izz="0.000698"/> 
+      </inertial>  
+      <visual> 
+        <origin xyz="0 0 0" rpy="0 0 0"/>  
+        <geometry> 
+          <mesh filename="package://dhrobot_description/meshes/arm_base_link.STL"/> 
+        </geometry>  
+        <material name=""> 
+          <color rgba="0.75294 0.75294 0.75294 1"/> 
+        </material> 
+      </visual>  
+      <collision> 
+        <origin xyz="0 0 0" rpy="0 0 0"/>  
+        <geometry> 
+          <mesh filename="package://dhrobot_description/meshes/arm_base_link.STL"/> 
+        </geometry> 
+      </collision> 
+    </link>  
+   
+    <link name="arm_link_1"> 
+      <inertial> 
+        <origin xyz="-2.3512E-06 -0.18768 0.0080021" rpy="0 0 0"/>  
+        <mass value="0.40127"/>  
+        <inertia ixx="0.0041563" ixy="-8.3909E-07" ixz="-1.564E-07" iyy="0.00039337" iyz="-0.00039466" izz="0.0040618"/> 
+      </inertial>  
+      <visual> 
+        <origin xyz="0 0 0" rpy="0 0 0"/>  
+        <geometry> 
+          <mesh filename="package://dhrobot_description/meshes/arm_link_1.STL"/> 
+        </geometry>  
+        <material name=""> 
+          <color rgba="0.75294 0.75294 0.75294 1"/> 
+        </material> 
+      </visual>  
+      <collision> 
+        <origin xyz="0 0 0" rpy="0 0 0"/>  
+        <geometry> 
+          <mesh filename="package://dhrobot_description/meshes/arm_link_1.STL"/> 
+        </geometry> 
+      </collision> 
+    </link>  
+   
+    <joint name="arm_joint_1" type="revolute"> 
+      <origin xyz="0 0 0.08" rpy="-1.5708 -7.886E-16 -6.6443E-18"/>  
+      <parent link="arm_base_link"/>  
+      <child link="arm_link_1"/>  
+      <axis xyz="0 0 -1"/>  
+      <limit lower="-1.57" upper="1.57" effort="0" velocity="0"/> 
+    </joint>  
+   
+    <link name="arm_link_2"> 
+      <inertial> 
+        <origin xyz="0.00079585 0.0055011 0.16292" rpy="0 0 0"/>  
+        <mass value="0.22761"/>  
+        <inertia ixx="0.001119" ixy="-1.1536E-05" ixz="-6.9692E-06" iyy="0.0010183" iyz="-4.3124E-05" izz="0.00022538"/> 
+      </inertial>  
+      <visual> 
+        <origin xyz="0 0 0" rpy="0 0 0"/>  
+        <geometry> 
+          <mesh filename="package://dhrobot_description/meshes/arm_link_2.STL"/> 
+        </geometry>  
+        <material name=""> 
+          <color rgba="1 1 1 1"/> 
+        </material> 
+      </visual>  
+      <collision> 
+        <origin xyz="0 0 0" rpy="0 0 0"/>  
+        <geometry> 
+          <mesh filename="package://dhrobot_description/meshes/arm_link_2.STL"/> 
+        </geometry> 
+      </collision> 
+    </link>  
+   
+    <joint name="arm_joint_2" type="revolute"> 
+      <origin xyz="0.00011599 -0.315 -0.00031591" rpy="1.5708 3.324E-16 -1.3271E-16"/>  
+      <parent link="arm_link_1"/>  
+      <child link="arm_link_2"/>  
+      <axis xyz="0 0 -1"/>  
+      <limit lower="-3.14" upper="3.14" effort="0" velocity="0"/> 
+    </joint>  
+   
+  </xacro:macro> 
+</robot>
+
+```
 ## 3. ROS 管理指南
 
 ### 3.1 目录位置
@@ -433,4 +548,4 @@ POSSIBILITY OF SUCH DAMAGE.
 
 ``` plain
 更新于2019.3.11
-整理人：王宪伟
+王宪伟
