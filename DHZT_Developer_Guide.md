@@ -85,7 +85,7 @@ topic、service 和 action 的名字是节点服务端、客户端之间通信�
 > 使用项目组内特定的风格。
 
 package.xml 是每个 ROS 包都必须包含的，可以通过使用 `catkin_create_pkg` 自动生成，其他详细介绍请看 [ROS package](http://wiki.ros.org/catkin/package.xml)。以下是 package.xml 的格式风格。
-- 正常情况下，使用推荐的Format 2方式进行package.xml的编写,具体介绍查看 [ROS package](http://wiki.ros.org/action/fullsearch/catkin/package.xml?action=fullsearch&context=180&value=linkto%3A%22catkin%2Fpackage.xml%22#Format_2_.28Recommended.29)。
+- 正常情况下，使用推荐的Format 2方式进行package.xml的编写,具体介绍查看 [ROS package_Format2](http://wiki.ros.org/action/fullsearch/catkin/package.xml?action=fullsearch&context=180&value=linkto%3A%22catkin%2Fpackage.xml%22#Format_2_.28Recommended.29)。
 - `version`版本标签的含义为：主版本-子版本-修改次数。现在所有包的主版本默认为 1 ，子版本和修改次数默认为 0 。即初始化为 `1.0.0`。之后，主、子版本和修改次数的值会伴随 ROS 包的修改而不断变化。当修改次数达到一定值时，可以将子版本加 1，而修改次数重新归零。以此类推，如果子版本数增到一定程度时，就可以将主版本加 1，而其他两个归零。对于修改到什么程度就可以向子版本或主版本进 1，请各模块负责人自己决定。举个例子：`1.0.0` -> `1.0.20` -> `1.1.0` -> `1.2.10` -> `2.0.0`。
 - 内容全部使用 2 格缩进。
 - 所有在 package.xml 中被注释的都要删除掉，只留下最后精简过的、有用的信息。
@@ -110,11 +110,11 @@ package.xml 是每个 ROS 包都必须包含的，可以通过使用 `catkin_cre
   <version>1.0.0</version>
   <description>The dhrobot_driver package.</description>
 
-  <maintainer email="author@email.com">wxw</maintainer>
+  <maintainer email="author@email.com">author</maintainer>
 
   <license>BSD</license>
 
-  <author email="author@email.com">wxw</author>
+  <author email="author@email.com">author</author>
 
   <buildtool_depend>catkin</buildtool_depend>
 
@@ -179,10 +179,10 @@ find_package(catkin REQUIRED COMPONENTS
   dhrobot_msgs
   actionlib_msgs
   actionlib
-	 tf
   geometry_msgs
   sensor_msgs
   nav_msgs
+  tf
 )
 
 catkin_package()
