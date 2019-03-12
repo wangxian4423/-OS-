@@ -55,11 +55,7 @@
 
 - 节点名字与节点类型一样。要**全部小写**、使用下划线作为单词间的连接，并用有意义的单词来命名。
 - 通常，节点名字要与节点类型相同。但如果要启动多个同样类型的节点，请更改节点名字，使它们互不相同。
-- 通常，节点类型应该尽可能短，因为它们中的一部分已经被包的名字所包含了。比如：假设存在一个包 **laser_scan**，其中包含观察激光数据的程序，那程序的名字应该命名为 **viewer**，而不是 **laser_scan_viewer**。但是本人不太认同以上官方的说法，因为这与 C++ 代码命名指南相冲突（代码本身要命名的足够详细）。这条规则可以成立的条件是要把代码名和包名联系来看，但如果只看代码名字的话，我想很难从有限的单词中可以看出代码所要实现的功能。因此，**这条规则可以忽略掉。只要代码的名字好理解，与包名某些单词重复也是没有关系的**。比如：
-
-``` bash
-$ rosrun xm_arm_teleop xm_arm_teleop_joint_position_keyboard
-```
+- 通常，若一个功能包下只有一个节点，应将节点名称与功能包名称保持一致。
 
 ### 1.5 Topic / Service / Action
 
@@ -70,8 +66,8 @@ $ rosrun xm_arm_teleop xm_arm_teleop_joint_position_keyboard
 topic、service 和 action 的名字是节点服务端、客户端之间通信的桥梁。它们存在于一个分层的命名空间中，客户端便可以提供机制在运行时来重映射它们的名字。因此，它们相较于包的命名更加灵活。
 
 - topic、service 和 action 的名字遵循 C++ 变量命名指南：小写、下划线。
-- 命名应该足够的具有描述性。并且最好添加相应的前缀来指明 topic、service、action 的作用范围。比如：假设机械臂关节节点要通过 topic 发布关节状态数据，那命名成 **/joint_states** 要比 **/states** 好。**/xm_arm/joint_states** 又要比 **/joint_states** 好。
-- 如果某些程序发布的 topic、service、action 名字没有使用前缀，请在 launch 文件中使用 `<remap>`来重映射。比如：节点 robot_state_publisher 默认订阅的 topic 是 **/joint_states**，使用重映射可以使其订阅 **/xm_arm/joint_states** 上的数据。
+- 命名应该足够的具有描述性。并且最好添加相应的前缀来指明 topic、service、action 的作用范围。比如：假设机械臂关节节点要通过 topic 发布关节状态数据，那命名成 **/joint_states** 要比 **/states** 好。**/dhrobot_arm/joint_states** 又要比 **/joint_states** 好。
+- 如果某些程序发布的 topic、service、action 名字没有使用前缀，请在 launch 文件中使用 `<remap>`来重映射。比如：节点 robot_state_publisher 默认订阅的 topic 是 **/joint_states**，使用重映射可以使其订阅 **/dhrobot_arm/joint_states** 上的数据。
 
 ## 2. ROS 格式指南
 
@@ -89,7 +85,7 @@ topic、service 和 action 的名字是节点服务端、客户端之间通信�
 > 使用项目组内特定的风格。
 
 package.xml 是每个 ROS 包都必须包含的，可以通过使用 `catkin_create_pkg` 自动生成，其他详细介绍请看 [ROS package](http://wiki.ros.org/catkin/package.xml)。以下是 package.xml 的格式风格。
-
+- 正常情况下，使用推荐的Format 2方式进行package.xml的编写,具体介绍查看 [ROS package](http://wiki.ros.org/action/fullsearch/catkin/package.xml?action=fullsearch&context=180&value=linkto%3A%22catkin%2Fpackage.xml%22#Format_2_.28Recommended.29)。
 - `version`版本标签的含义为：主版本-子版本-修改次数。现在所有包的主版本默认为 1 ，子版本和修改次数默认为 0 。即初始化为 `1.0.0`。之后，主、子版本和修改次数的值会伴随 ROS 包的修改而不断变化。当修改次数达到一定值时，可以将子版本加 1，而修改次数重新归零。以此类推，如果子版本数增到一定程度时，就可以将主版本加 1，而其他两个归零。对于修改到什么程度就可以向子版本或主版本进 1，请各模块负责人自己决定。举个例子：`1.0.0` -> `1.0.20` -> `1.1.0` -> `1.2.10` -> `2.0.0`。
 - 内容全部使用 2 格缩进。
 - 所有在 package.xml 中被注释的都要删除掉，只留下最后精简过的、有用的信息。
@@ -108,34 +104,42 @@ package.xml 是每个 ROS 包都必须包含的，可以通过使用 `catkin_cre
 
 ``` xml
 <?xml version="1.0"?>
+<package format="2">
 <package>
-  <name>xm_arm_robot_hardware</name>
-  <version>0.0.1</version>
-  <description>The xm_arm_robot_hardware package implements hardware interface by using ros_control.</description>
+  <name>dhrobot_driver</name>
+  <version>1.0.0</version>
+  <description>The dhrobot_driver package.</description>
 
-  <maintainer email="myyerrol@126.com">myyerrol</maintainer>
+  <maintainer email="author@email.com">wxw</maintainer>
 
   <license>BSD</license>
 
-  <author email="myyerrol@126.com">myyerrol</author>
+  <author email="author@email.com">wxw</author>
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <build_depend>control_toolbox</build_depend>
-  <build_depend>controller_manager</build_depend>
-  <build_depend>hardware_interface</build_depend>
-  <build_depend>realtime_tools</build_depend>
   <build_depend>roscpp</build_depend>
-  <build_depend>sensor_msgs</build_depend>
+  <build_depend>rospy</build_depend>
   <build_depend>std_msgs</build_depend>
-
-  <run_depend>control_toolbox</run_depend>
-  <run_depend>controller_manager</run_depend>
-  <run_depend>hardware_interface</run_depend>
-  <run_depend>realtime_tools</run_depend>
-  <run_depend>roscpp</run_depend>
-  <run_depend>sensor_msgs</run_depend>
-  <run_depend>std_msgs</run_depend>
+  <build_depend>dhrobot_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>actionlib_msgs</build_depend>
+  <build_depend>tf</build_depend>
+  
+  <build_export_depend>tf</build_export_depend>
+  <build_export_depend>roscpp</build_export_depend>
+  <build_export_depend>rospy</build_export_depend>
+  <build_export_depend>std_msgs</build_export_depend>
+ 
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>dhrobot_msgs</exec_depend>
+  <exec_depend>actionlib_msgs</exec_depend>
+  <exec_depend>tf</exec_depend>
 
 </package>
 
@@ -166,16 +170,19 @@ catkin_metapackage()
 
 ``` cmake
 cmake_minimum_required(VERSION 2.8.3)
-project(xm_arm_robot_hardware)
+project(dhrobot_driver)
 
 find_package(catkin REQUIRED COMPONENTS
-  control_toolbox
-  controller_manager
-  hardware_interface
-  realtime_tools
   roscpp
-  sensor_msgs
+  rospy
   std_msgs
+  dhrobot_msgs
+  actionlib_msgs
+  actionlib
+	 tf
+  geometry_msgs
+  sensor_msgs
+  nav_msgs
 )
 
 catkin_package()
@@ -186,15 +193,14 @@ include_directories(
 )
 
 add_executable(
-  xm_arm_robot_hardware
-  include/xm_arm_robot_hardware/xm_arm_robot_hardware.h
-  src/xm_arm_robot_hardware.cpp
-  src/main.cpp
+  robot_driver src/robot_driver.cpp
+  include/robot_driver.h
 )
 
 target_link_libraries(
-  xm_arm_robot_hardware
+  robot_driver
   ${catkin_LIBRARIES}
+  libDHRobotAPIso.so
 )
 
 ```
@@ -217,19 +223,19 @@ launch 文件作为 roslaunch 命令的输入，可以启动多个 ROS 节点并
 - `<node>` 的基本声明顺序为：`name`， `pkg`， `type`。
 
 ``` xml
-<node name="listener" pkg="rospy_tutorials" type="listener.py" />
+<node name="joy" pkg="joy_node" type="joy_node" />
 ```
 
 - `<arg>` 的基本声明顺序为：`name`，`value`。
 
 ``` xml
-<arg name="foo" default="1" />
+<arg name="joystick" default="true" />
 ```
 
 - `<param>` 的基本声明顺序为：`name`， `type`， `value`。
 
 ``` xml
-<param name="publish_frequency" type="double" value="10.0" />
+<param name="joy_node/dev" type="string" value="/dev/input/js0" />
 ```
 
 - `<rosparam>` 的基本声明顺序为：`command`，`file`。
@@ -241,20 +247,21 @@ launch 文件作为 roslaunch 命令的输入，可以启动多个 ROS 节点并
 以下是完整的例子：
 
 ``` xml
+<?xml version="1.0"?>
 <launch>
+  <include file="$(find yocs_cmd_vel_mux)/launch/standalone.launch"/>
 
-  <!-- Load joint controller configurations from YAML file to parameter server -->
-  <rosparam file="$(find xm_arm_gazebo_controller_config)/config/xm_arm_gazebo_joint_states.yaml" command="load" />
+  <arg name="joy_dev" default="/dev/input/js0" />
+  <arg name="joystick" default="true" />
 
-  <node name="joint_state_controller_spawner" pkg="controller_manager" type="spawner"
-        respawn="false" output="screen" ns="/xm_arm"
-        args="joint_state_controller" />
+  <group>
 
-  <!-- Convert joint states to TF transforms for rviz, etc -->
-  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
-        respawn="false" output="screen">
-    <remap from="/joint_states" to="/xm_arm/joint_states" />
-  </node>
+    <rosparam command="load" file="$(find dhrobot_remote_teleop)/config/teleop.yaml" />
+    <param name="joy_node/dev" value="$(arg joy_dev)" />
+    <node name="joy_node" pkg="joy" type="joy_node" />
+    <node name="joy_tele" pkg="dhrobot_remote_teleop" type="joy_tele" />
+
+  </group>
 
 </launch>
 
@@ -277,7 +284,7 @@ launch 文件作为 roslaunch 命令的输入，可以启动多个 ROS 节点并
 ``` plain
 Software License Agreement (BSD License)
 
-Copyright (c) 2016, Team-Xmbot-Service-Robot
+Copyright (c) 2018, Dalian DHZT inc
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -290,10 +297,9 @@ are met:
    copyright notice, this list of conditions and the following
    disclaimer in the documentation and/or other materials provided
    with the distribution.
- * Neither the name of the Team-Xmbot-Service-Robot nor the names
-   of its contributors may be used to endorse or promote products
-   derived from this software without specific prior written
-   permission.
+ * Neither the name of the copyright holder nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -314,7 +320,7 @@ POSSIBILITY OF SUCH DAMAGE.
 /*********************************************************************
  *  Software License Agreement (BSD License)
  *
- *  Copyright (c) 2016, Team-Xmbot-Service-Robot
+ *  Copyright (c) 2018, Dalian DHZT inc
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -327,7 +333,7 @@ POSSIBILITY OF SUCH DAMAGE.
  *     copyright notice, this list of conditions and the following
  *     disclaimer in the documentation and/or other materials provided
  *     with the distribution.
- *   * Neither the name of the Team-Xmbot-Service-Robot nor the names
+ *   * Neither the name of the copyright holder nor the names
  *     of its contributors may be used to endorse or promote products
  *     derived from this software without specific prior written
  *     permission.
@@ -353,7 +359,7 @@ POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************
  *  Software License Agreement (BSD License)
  *
- *  Copyright (c) 2016, Team-Xmbot-Service-Robot
+ *  Copyright (c) 2018, Dalian DHZT inc
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -366,7 +372,7 @@ POSSIBILITY OF SUCH DAMAGE.
  *     copyright notice, this list of conditions and the following
  *     disclaimer in the documentation and/or other materials provided
  *     with the distribution.
- *   * Neither the name of the Team-Xmbot-Service-Robot nor the names
+ *   * Neither the name of the copyright holder nor the names
  *     of its contributors may be used to endorse or promote products
  *     derived from this software without specific prior written
  *     permission.
@@ -411,6 +417,7 @@ POSSIBILITY OF SUCH DAMAGE.
 - action 文件要放到 `action/` 目录下。
 - 其他配置文件要放到 `config/` 目录下。
 
+另外，与机器人本身驱动相关性不高的demo等演示性或者实验性质的程序放到ROS 包 `<dhrobot_demo>`下。
 ### 3.2 节点通信类型
 
 > **Tip**
@@ -423,3 +430,7 @@ POSSIBILITY OF SUCH DAMAGE.
 > **Tip**
 > 
 > 可以将功能相近的若干个包组织在一个元包内。
+
+``` plain
+更新于2019.3.11
+整理人：王宪伟
